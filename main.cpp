@@ -54,12 +54,33 @@ class RBTree {
         return std::pair<NodePtr_t, NodePtr_t*>(root, &root->right);
     }
 
-    void ascend_checking(NodePtr_t node, NodePtr_t father, NodePtr_t uncle, NodePtr_t gf) {
-      
+    void ascend_fatherIsRed(NodePtr_t inserted_node, NodePtr_t father) {
+      // father node is red
+      NodePtr_t gf = father->father; // grand father must be black
+      NodePtr_t uncle = (father==gf->left)?gf->right:gf->left;
+      // uncle node is black
+      if(isblack(uncle)) {
+          // same direction
+          if(inserted_node == father->left && father == father->father->left) {
+          }
+          else if(inserted_node==father->right && father==father->father->right) {
+          }
+          // not same direction
+      }
+      // uncle node is red
+      else {
+          father->color = Color::black;
+          uncle->color = Color::black;
+          gf->color = Color::red;
+          if(gf==this->root) { gf->color = Color::black; return;}
+          else if(isblack(gf->father)) return;
+          else ascend_fatherIsRed(gf, gf->father);
+      }
+    
     }
 
     bool _insert(NodePtr_t root, int value) {
-      auto [father, pptr] = findInsertion(this->root, value);
+      auto [father, pptr] = findInsertion(root, value);
       if(!father)
         return false;
       NodePtr_t new_node = new Node_t(value);
@@ -68,19 +89,12 @@ class RBTree {
       (*pptr) = new_node;
       // father node is black
       if(isblack(father)) {
-        return true;
+          return true;
       }
-      // father node is red
-      NodePtr_t gf = father->father; // grand father must be black
-      NodePtr_t uncle = (father==gf->left)?gf->right:gf->left;
-      // uncle node is also red
-      if(isred(uncle)) {
-        ascend_checking(new_node, father, uncle, gf);
-      }
-      // uncle node is black
       else {
+          ascend_fatherIsRed(new_node, father);
+          return true;
       }
-      return false;
     }
 
     bool insert(int value) {
