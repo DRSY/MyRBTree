@@ -165,6 +165,23 @@ class RBTree {
         return NULL;
     }
 
+    void black_black(NodePtr_t father, NodePtr_t brother) {
+        if(brother==father->right) {
+            if(brother->right && isred(brother->right)) {
+                Color tmp = father->color;
+                father->color = brother->color;
+                brother->color = tmp;
+                rotate_left(father, brother);
+                brother->right->color = Color::black;
+            }
+            else if(brother->left && isred(brother->left)) {
+                
+            }
+        }else {
+
+        }
+    }
+
     void remove_atleastonenull(NodePtr_t node_to_remove) {
         // red leaf node
         if(isred(node_to_remove) && isleaf(node_to_remove)) {
@@ -176,6 +193,32 @@ class RBTree {
         }
         // black leaf node
         else if(isblack(node_to_remove) && isleaf(node_to_remove)) {
+            if(node_to_remove==this->root) {this->root=NULL;return;}
+            assert(node_to_remove->father!=NULL);
+            NodePtr_t father = node_to_remove->father;
+            NodePtr_t brother = NULL;
+            if(node_to_remove==father->left) {
+                father->left = NULL;
+                brother = father->right;
+            }else {
+                father->right = NULL;
+                brother = father->left;
+            }
+            assert(brother!=NULL);
+            if(brother->color==Color::black) {
+                black_black(father, brother);
+            }else if(brother==father->right) {
+                brother->color = Color::black;
+                father->color = Color::red;
+                rotate_left(father, brother);
+                black_black(father, father->right);
+            }
+            else{
+                brother->color = Color::black;
+                father->color = Color::red;
+                rotate_right(brother, father);
+                black_black(father, father->left);
+            }
         }
         // black node with one red leaf node
         else {
