@@ -8,6 +8,9 @@ enum class Color{red=0, black=1, dblack=2};
 #define isred(node) (node->color==Color::red)
 #define isblack(node) (node->color==Color::black)
 #define isdblack(node) (node->color==Color::dblack)
+#define isleaf(node) (!node->left&&!node->right)
+#define isfull(node) (node->left && node->right)
+
 
 typedef struct Node{
   int value;
@@ -64,7 +67,7 @@ class RBTree {
             else rhs_f->right = lhs;
         }
         else
-            this->root = lhs
+            this->root = lhs;
         return lhs;
     }
 
@@ -95,7 +98,7 @@ class RBTree {
           else ascend_fatherIsRed(gf, gf->father);
       }
       // uncle node is black
-      else(isblack(uncle)) {
+      else{
           // same direction
           if(inserted_node == father->left && father == gf->left) {
               father->color = Color::black;
@@ -109,8 +112,16 @@ class RBTree {
           }
           // not same direction
           else if(inserted_node==father->right && father==gf->left) {
+              auto p = rotate_left(father, inserted_node);
+              p->color = Color::black;
+              gf->color = Color::red;
+              rotate_right(p, gf);
           }
           else {
+              auto p = rotate_right(inserted_node, father);
+              p->color = Color::black;
+              gf->color = Color::red;
+              rotate_left(gf, p);
           }
       }
     }
@@ -141,10 +152,78 @@ class RBTree {
       }
       return _insert(this->root, value);
     }
+
+    NodePtr_t findNodeToRemove(int value) {
+        NodePtr_t p = this->root;
+        while(p) {
+            int cur_value = p->value;
+            if(value==cur_value)
+                return p;
+            else if(value<cur_value)  p=p->left;
+            else p=p->right;
+        }
+        return NULL;
+    }
+
+    void remove_atleastonenull(NodePtr_t node_to_remove) {
+        // red leaf node
+        if(isred(node_to_remove) && isleaf(node_to_remove)) {
+            auto father = node_to_remove->father;
+            if(node_to_remove==father->left)
+                father->left = NULL;
+            else
+                father->right = NULL;
+        }
+        // black leaf node
+        else if(isblack(node_to_remove) && isleaf(node_to_remove)) {
+        }
+        // black node with one red leaf node
+        else {
+            assert(node_to_remove->color==Color::black);
+            NodePtr_t child = (node_to_remove->left)?node_to_remove->left:node_to_remove->right;
+            assert(isred(child));
+            node_to_remove->value = child->value;
+            if(child==node_to_remove->left)  node_to_remove->left=NULL;
+            else  node_to_remove->right=NULL;
+        }
+    }
+
+    NodePtr_t findSuccessor(NodePtr_t node) {
+    }
+
+    bool remove(int value) {
+        NodePtr_t node_to_remove = findNodeToRemove(value);
+        if(!node_to_remove)
+            return false;
+        if(!isfull(node_to_remove)) {
+            remove_atleastonenull(node_to_remove);
+            return true;
+        }
+        else {
+            // find successor node first
+        }
+    }
+
+    void inorder_traverse(NodePtr_t root) {
+        if(root) {
+            inorder_traverse(root->left);
+            std::cout << root->value << " ";
+            inorder_traverse(root->right);
+        }
+    }
+
+    void print() {
+        inorder_traverse(this->root);
+        std::cout<<"\n";
+    }
 };
 
-
 int main() {
-  RBTree tree(3);
-  return 0;
+    RBTree tree(3);
+    tree.insert(1);
+    tree.insert(4);
+    tree.insert(0);
+    tree.insert(2);
+    tree.print();
+    return 0;
 }
