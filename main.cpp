@@ -169,12 +169,26 @@ class RBTree {
         if(brother==father->right) {
             if(brother->right && isred(brother->right)) {
                 Color tmp = father->color;
-                father->color = brother->color;
+                father->color = Color::black;
                 brother->color = tmp;
                 rotate_left(father, brother);
                 brother->right->color = Color::black;
             }
             else if(brother->left && isred(brother->left)) {
+                brother->left->color = Color::black;
+                brother->color = Color::red;
+                auto p = rotate_right(brother->left, brother);
+                Color tmp = father->color;
+                father->color = Color::black;
+                p->color = tmp;
+                rotate_left(father, p);
+                p->right->color = Color::black;
+            }
+            else if(isred(father)) {
+                father->color = Color::black;
+                brother->color = Color::red;
+            }
+            else {
                 
             }
         }else {
