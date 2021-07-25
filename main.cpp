@@ -61,6 +61,7 @@ class RBTree {
         NodePtr_t tmp_r = lhs->right;
         rhs->left = tmp_r;
         lhs->right = rhs;
+        rhs->father = lhs;
         if(rhs_f) {
             if(rhs==rhs_f->left)  rhs_f->left = lhs;
             else rhs_f->right = lhs;
@@ -75,6 +76,7 @@ class RBTree {
         NodePtr_t tmp_l = rhs->left;
         lhs->right = tmp_l;
         rhs->left = lhs;
+        lhs->father = rhs;
         if(lhs_f) {
             if(lhs==lhs_f->left)  lhs_f->left = rhs;
             else lhs_f->right = rhs;
@@ -323,14 +325,12 @@ class RBTree {
     }
 };
 
+
 int main() {
     RBTree tree(3);
-    tree.insert(1);
-    tree.insert(4);
-    tree.insert(0);
-    tree.insert(2);
-    tree.print();
-    std::cout << tree.remove(1) << std::endl;
+    for(int i=0;i<8;++i)
+        if(i!=3)
+            tree.insert(i);
     tree.print();
     return 0;
 }
