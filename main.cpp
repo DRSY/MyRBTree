@@ -189,6 +189,11 @@ class RBTree {
     }
 
     NodePtr_t findSuccessor(NodePtr_t node) {
+        assert(node->right!=NULL);
+        NodePtr_t p = node->right;
+        while(p->left) 
+            p = p->left;
+        return p;
     }
 
     bool remove(int value) {
@@ -201,6 +206,10 @@ class RBTree {
         }
         else {
             // find successor node first
+            NodePtr_t successor_node = findSuccessor(node_to_remove);
+            node_to_remove->value = successor_node->value;
+            successor_node->color = node_to_remove->color;
+            remove_atleastonenull(successor_node); // successor's left is NULL
         }
     }
 
