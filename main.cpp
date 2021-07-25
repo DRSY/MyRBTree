@@ -24,9 +24,8 @@ typedef struct Node{
 }Node_t, *NodePtr_t;
 
 class RBTree {
-  private:
-    NodePtr_t root;
   public:
+    NodePtr_t root;
     RBTree(): root(new Node_t()) { root->color = Color::black; }
     RBTree(int value): root(new Node_t(value)) { root->color = Color::black; }
 
@@ -189,10 +188,47 @@ class RBTree {
                 brother->color = Color::red;
             }
             else {
-                
+               brother->color = Color::red; 
+               if(father==this->root) {
+                    father->color = Color::black;
+               }else {
+                    auto tmp = father->father;
+                    NodePtr_t b = (father==tmp->left)?tmp->right:tmp->left;
+                    black_black(tmp, b);
+               }
             }
         }else {
-
+            if(brother->left && isred(brother->left)) {
+                Color tmp = father->color;
+                father->color = Color::black;
+                brother->color = tmp;
+                rotate_right(brother, father);
+                brother->left->color = Color::black;
+            }
+            else if(brother->right && isred(brother->right)) {
+                brother->right->color = Color::black;
+                brother->color = Color::red;
+                auto p = rotate_left(brother, brother->right);
+                Color tmp = father->color;
+                father->color = Color::black;
+                p->color = tmp;
+                rotate_right(p, father);
+                p->left->color = Color::black;
+            }
+            else if(isred(father)) {
+                father->color = Color::black;
+                brother->color = Color::red;
+            }
+            else {
+               brother->color = Color::red; 
+               if(father==this->root) {
+                    father->color = Color::black;
+               }else {
+                    auto tmp = father->father;
+                    NodePtr_t b = (father==tmp->left)?tmp->right:tmp->left;
+                    black_black(tmp, b);
+               }
+            }
         }
     }
 
@@ -267,6 +303,7 @@ class RBTree {
             node_to_remove->value = successor_node->value;
             successor_node->color = node_to_remove->color;
             remove_atleastonenull(successor_node); // successor's left is NULL
+            return true;
         }
     }
 
@@ -291,5 +328,9 @@ int main() {
     tree.insert(0);
     tree.insert(2);
     tree.print();
+    std::cout << tree.remove(2) << std::endl;
+    std::cout << tree.remove(4) << std::endl;
+    tree.print();
+    std::cout<< tree.root->value << std::endl;
     return 0;
 }
