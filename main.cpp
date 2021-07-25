@@ -54,21 +54,39 @@ class RBTree {
         return std::pair<NodePtr_t, NodePtr_t*>(root, &root->right);
     }
 
+    NodePtr_t rotate_right(NodePtr_t lhs, NodePtr_t rhs) {
+        NodePtr_t rhs_f = rhs->father;
+        NodePtr_t tmp_r = lhs->right;
+        rhs->left = tmp_r;
+        lhs->right = rhs;
+        if(rhs_f) {
+            if(rhs==rhs_f->left)  rhs_f->left = lhs;
+            else rhs_f->right = lhs;
+        }
+        else
+            this->root = lhs
+        return lhs;
+    }
+
+    NodePtr_t rotate_left(NodePtr_t lhs, NodePtr_t rhs) {
+        NodePtr_t lhs_f = lhs->father;
+        NodePtr_t tmp_l = rhs->left;
+        lhs->right = tmp_l;
+        rhs->left = lhs;
+        if(lhs_f) {
+            if(lhs==lhs_f->left)  lhs_f->left = rhs;
+            else lhs_f->right = rhs;
+        }else
+            this->root = rhs;
+        return rhs;
+    }
+
     void ascend_fatherIsRed(NodePtr_t inserted_node, NodePtr_t father) {
       // father node is red
       NodePtr_t gf = father->father; // grand father must be black
       NodePtr_t uncle = (father==gf->left)?gf->right:gf->left;
-      // uncle node is black
-      if(isblack(uncle)) {
-          // same direction
-          if(inserted_node == father->left && father == father->father->left) {
-          }
-          else if(inserted_node==father->right && father==father->father->right) {
-          }
-          // not same direction
-      }
       // uncle node is red
-      else {
+      if(uncle && isred(uncle)) {
           father->color = Color::black;
           uncle->color = Color::black;
           gf->color = Color::red;
@@ -76,7 +94,25 @@ class RBTree {
           else if(isblack(gf->father)) return;
           else ascend_fatherIsRed(gf, gf->father);
       }
-    
+      // uncle node is black
+      else(isblack(uncle)) {
+          // same direction
+          if(inserted_node == father->left && father == gf->left) {
+              father->color = Color::black;
+              gf->color = Color::red;
+              rotate_right(father, gf);
+          }
+          else if(inserted_node==father->right && father==gf->right) {
+              father->color = Color::black;
+              gf->color = Color::red;
+              rotate_left(gf, father);
+          }
+          // not same direction
+          else if(inserted_node==father->right && father==gf->left) {
+          }
+          else {
+          }
+      }
     }
 
     bool _insert(NodePtr_t root, int value) {
