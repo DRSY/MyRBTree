@@ -84,7 +84,6 @@ class RBTree {
     }
 
     void ascend_fatherIsRed(NodePtr_t inserted_node, NodePtr_t father) {
-      // father node is red
       NodePtr_t gf = father->father; // grand father must be black
       NodePtr_t uncle = (father==gf->left)?gf->right:gf->left;
       // uncle node is red
@@ -165,6 +164,9 @@ class RBTree {
     }
 
     void black_black(NodePtr_t father, NodePtr_t brother) {
+        if(!brother) {
+            return;
+        }
         if(brother==father->right) {
             if(brother->right && isred(brother->right)) {
                 Color tmp = father->color;
@@ -328,9 +330,7 @@ int main() {
     tree.insert(0);
     tree.insert(2);
     tree.print();
-    std::cout << tree.remove(2) << std::endl;
-    std::cout << tree.remove(4) << std::endl;
+    std::cout << tree.remove(1) << std::endl;
     tree.print();
-    std::cout<< tree.root->value << std::endl;
     return 0;
 }
