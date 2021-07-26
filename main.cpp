@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <assert.h>
+#include <queue>
 
 enum class Color{red=0, black=1, dblack=2};
 
@@ -24,10 +25,12 @@ typedef struct Node{
 }Node_t, *NodePtr_t;
 
 class RBTree {
-  public:
+  private:
     NodePtr_t root;
-    RBTree(): root(new Node_t()) { root->color = Color::black; }
-    RBTree(int value): root(new Node_t(value)) { root->color = Color::black; }
+    int depth;
+  public:
+    RBTree(): root(new Node_t()), depth(0) { root->color = Color::black; }
+    RBTree(int value): root(new Node_t(value)), depth(0) { root->color = Color::black; }
 
     bool _search(NodePtr_t root, int value) {
       if(!root)
@@ -323,14 +326,64 @@ class RBTree {
         inorder_traverse(this->root);
         std::cout<<"\n";
     }
+
+    void dfs(NodePtr_t root, size_t depth) {
+        if(!root)
+            return;
+        if(depth > this->depth)
+            this->depth = depth;
+        dfs(root->left, depth+1);
+        dfs(root->right, depth+1);
+    }
+
+    void update_depth() {
+        if(this->depth!=0)
+            return;
+        dfs(this->root, 1);
+    }
+
+    void display_tree(size_t width) {
+        size_t whole_width = (this->depth-1)*2*width+1;
+        std::queue<NodePtr_t> q;
+        q.push(this->root);
+        size_t level = 0;
+        while(!q.empty()) {
+            level++;
+            size_t num = q.size();
+            for(size_t i=0;i<(this->depth-level);++i)
+                for(size_t j=0;j<width;++j)
+                    std::cout<<" ";
+            size_t space = (whole_width-num-width*2*(this->depth-level))/(num-1);
+            while(num--) {
+                auto ptr = q.front();
+                q.pop();
+                if(ptr)
+                    std::cout<<ptr->value;
+                else
+                    std::cout<<" ";
+                for(size_t j=0;j<space;++j)
+                    std::cout<<" ";
+                if(level<this->depth) {
+                   if(ptr) {
+                        q.push(ptr->left);
+                        q.push(ptr->right);
+                    }else {
+                        q.push(NULL);
+                        q.push(NULL);
+                    }
+                }
+            }
+            std::cout<<"\n";
+        }
+    }
 };
 
 
 int main() {
     RBTree tree(3);
-    for(int i=0;i<8;++i)
-        if(i!=3)
-            tree.insert(i);
-    tree.print();
+    for(int i=0;i<5;++i)
+        if(i!=3)  tree.insert(i);
+    tree.update_depth();
+    tree.display_tree(4);
     return 0;
 }
