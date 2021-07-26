@@ -3,6 +3,8 @@
 #include <vector>
 #include <assert.h>
 #include <queue>
+#include <string>
+
 
 enum class Color{red=0, black=1, dblack=2};
 
@@ -12,6 +14,8 @@ enum class Color{red=0, black=1, dblack=2};
 #define isleaf(node) (!node->left&&!node->right)
 #define isfull(node) (node->left && node->right)
 
+#define green(text) std::string("\e[0;32m")+std::string(text)+std::string("\e[0m")
+#define red(text) std::string("\e[0;31m")+std::string(text)+std::string("\e[0m")
 
 typedef struct Node{
   int value;
@@ -131,8 +135,10 @@ class RBTree {
 
     bool _insert(NodePtr_t root, int value) {
       auto [father, pptr] = findInsertion(root, value);
-      if(!father)
+      if(!father) {
+        std::cerr << red("inserted value already in the tree\n");
         return false;
+      }
       NodePtr_t new_node = new Node_t(value);
       new_node->color = Color::red;
       new_node->father = father;
@@ -300,8 +306,10 @@ class RBTree {
 
     bool remove(int value) {
         NodePtr_t node_to_remove = findNodeToRemove(value);
-        if(!node_to_remove)
+        if(!node_to_remove) {
+            std::cerr << red("Value to be removed not in the tree\n");
             return false;
+        }
         if(!isfull(node_to_remove)) {
             remove_atleastonenull(node_to_remove);
             return true;
@@ -384,7 +392,7 @@ class RBTree {
 int main() {
     RBTree tree(3);
     for(int i=0;i<5;++i)
-        if(i!=3)  tree.insert(i);
+        tree.insert(i);
     tree.insert(-1);
     tree.update_depth();
     tree.display_tree(4);
