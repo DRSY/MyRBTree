@@ -363,7 +363,11 @@ class RBTree {
             for(size_t i=0;i<(this->depth-level);++i)
                 for(size_t j=0;j<width;++j)
                     std::cout<<" ";
-            size_t space = (whole_width-num-width*2*(this->depth-level))/(num-1);
+            size_t space;
+            if(level>1)
+                space = (whole_width-num-width*2*(this->depth-level))/(num-1);
+            else
+                space = 0;
             while(num--) {
                 auto ptr = q.front();
                 q.pop();
@@ -392,6 +396,7 @@ class RBTree {
 int main() {
     RBTree tree(3);
     for(int i=0;i<5;++i)
+        if(i!=3)
         tree.insert(i);
     tree.insert(-1);
     tree.update_depth();
@@ -401,7 +406,6 @@ int main() {
     tree.display_tree(4);
     tree.remove(4);
     tree.remove(2);
-    tree.remove(3);
     tree.update_depth();
     tree.display_tree(4);
     return 0;
