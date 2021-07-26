@@ -2,5 +2,5 @@
 
 # Compile and Run
 ```bash
-make && ./a.out
+make && ./rbt
 ```
