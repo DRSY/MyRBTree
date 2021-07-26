@@ -5,7 +5,6 @@
 #include <queue>
 #include <string>
 
-
 enum class Color{red=0, black=1, dblack=2};
 
 #define isred(node) (node->color==Color::red)
@@ -33,7 +32,7 @@ class RBTree {
     NodePtr_t root;
     int depth;
   public:
-    RBTree(): root(new Node_t()), depth(0) { root->color = Color::black; }
+    RBTree(): root(NULL), depth(0) {}
     RBTree(int value): root(new Node_t(value)), depth(0) { root->color = Color::black; }
 
     bool _search(NodePtr_t root, int value) {
@@ -394,9 +393,8 @@ class RBTree {
 
 
 int main() {
-    RBTree tree(3);
+    RBTree tree;
     for(int i=0;i<5;++i)
-        if(i!=3)
         tree.insert(i);
     tree.insert(-1);
     tree.update_depth();
