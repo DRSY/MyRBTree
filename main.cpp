@@ -250,7 +250,7 @@ class RBTree {
         }
         // black leaf node
         else if(isblack(node_to_remove) && isleaf(node_to_remove)) {
-            if(node_to_remove==this->root) {this->root=NULL;return;}
+            if(node_to_remove==this->root) {delete node_to_remove; this->root=NULL;return;}
             assert(node_to_remove->father!=NULL);
             NodePtr_t father = node_to_remove->father;
             NodePtr_t brother = NULL;
@@ -261,6 +261,7 @@ class RBTree {
                 father->right = NULL;
                 brother = father->left;
             }
+            delete node_to_remove;
             assert(brother!=NULL);
             if(brother->color==Color::black) {
                 black_black(father, brother);
@@ -285,6 +286,7 @@ class RBTree {
             node_to_remove->value = child->value;
             if(child==node_to_remove->left)  node_to_remove->left=NULL;
             else  node_to_remove->right=NULL;
+            delete child;
         }
     }
 
@@ -383,6 +385,15 @@ int main() {
     RBTree tree(3);
     for(int i=0;i<5;++i)
         if(i!=3)  tree.insert(i);
+    tree.insert(-1);
+    tree.update_depth();
+    tree.display_tree(4);
+    tree.remove(-1);
+    tree.update_depth();
+    tree.display_tree(4);
+    tree.remove(4);
+    tree.remove(2);
+    tree.remove(3);
     tree.update_depth();
     tree.display_tree(4);
     return 0;
