@@ -69,11 +69,14 @@ class RBTree {
         lhs->right = rhs;
         rhs->father = lhs;
         if(rhs_f) {
-            if(rhs==rhs_f->left)  rhs_f->left = lhs;
+            if(rhs==rhs_f->left) rhs_f->left = lhs ;
             else rhs_f->right = lhs;
+            lhs->father = rhs_f;
         }
-        else
+        else {
             this->root = lhs;
+            lhs->father = NULL;
+        }
         return lhs;
     }
 
@@ -86,8 +89,11 @@ class RBTree {
         if(lhs_f) {
             if(lhs==lhs_f->left)  lhs_f->left = rhs;
             else lhs_f->right = rhs;
-        }else
+            rhs->father = lhs_f;
+        }else {
             this->root = rhs;
+            rhs->father = NULL;
+        }
         return rhs;
     }
 
@@ -175,17 +181,24 @@ class RBTree {
 
     void black_black(NodePtr_t father, NodePtr_t brother) {
         if(!brother) {
-            return;
+            if(isred(father) || father==this->root) {
+                father->color = Color::black;
+                return;
+            }else {
+                NodePtr_t tmp = father->father;
+                NodePtr_t b = (father==tmp->left)?tmp->right:tmp->left;
+                black_black(tmp, b);
+            }
         }
         if(brother==father->right) {
-            if(brother->right && isred(brother->right)) {
+            if(isblack(brother) && brother->right && isred(brother->right)) {
                 Color tmp = father->color;
                 father->color = Color::black;
                 brother->color = tmp;
                 rotate_left(father, brother);
                 brother->right->color = Color::black;
             }
-            else if(brother->left && isred(brother->left)) {
+            else if(isblack(brother) && brother->left && isred(brother->left)) {
                 brother->left->color = Color::black;
                 brother->color = Color::red;
                 auto p = rotate_right(brother->left, brother);
@@ -195,29 +208,26 @@ class RBTree {
                 rotate_left(father, p);
                 p->right->color = Color::black;
             }
-            else if(isred(father)) {
-                father->color = Color::black;
-                brother->color = Color::red;
-            }
             else {
-               brother->color = Color::red; 
-               if(father==this->root) {
+                brother->color = Color::red;
+                if(isred(father) || father==this->root)
                     father->color = Color::black;
-               }else {
-                    auto tmp = father->father;
+                else {
+                    NodePtr_t tmp = father->father;
                     NodePtr_t b = (father==tmp->left)?tmp->right:tmp->left;
                     black_black(tmp, b);
-               }
+                }
             }
         }else {
-            if(brother->left && isred(brother->left)) {
+            NodePtr_t prev = father->right;
+            if(isblack(brother) && brother->left && isred(brother->left)) {
                 Color tmp = father->color;
                 father->color = Color::black;
                 brother->color = tmp;
                 rotate_right(brother, father);
                 brother->left->color = Color::black;
             }
-            else if(brother->right && isred(brother->right)) {
+            else if(isblack(brother) && brother->right && isred(brother->right)) {
                 brother->right->color = Color::black;
                 brother->color = Color::red;
                 auto p = rotate_left(brother, brother->right);
@@ -227,19 +237,15 @@ class RBTree {
                 rotate_right(p, father);
                 p->left->color = Color::black;
             }
-            else if(isred(father)) {
-                father->color = Color::black;
-                brother->color = Color::red;
-            }
             else {
-               brother->color = Color::red; 
-               if(father==this->root) {
+                brother->color = Color::red;
+                if(isred(father) || father==this->root)
                     father->color = Color::black;
-               }else {
-                    auto tmp = father->father;
+                else {
+                    NodePtr_t tmp = father->father;
                     NodePtr_t b = (father==tmp->left)?tmp->right:tmp->left;
                     black_black(tmp, b);
-               }
+                }
             }
         }
     }
@@ -351,7 +357,8 @@ class RBTree {
         dfs(this->root, 1);
     }
 
-    void display_tree(size_t width) {
+    void display(size_t width) {
+        update_depth();
         size_t whole_width = (this->depth-1)*2*width+1;
         std::queue<NodePtr_t> q;
         q.push(this->root);
@@ -371,7 +378,10 @@ class RBTree {
                 auto ptr = q.front();
                 q.pop();
                 if(ptr)
-                    std::cout<<ptr->value;
+                    if(ptr->color==Color::red)
+                        std::cout<<"\e[0;31m"<<ptr->value<<"\e[0m";
+                    else
+                        std::cout<<ptr->value;
                 else
                     std::cout<<" ";
                 for(size_t j=0;j<space;++j)
@@ -397,14 +407,13 @@ int main() {
     for(int i=0;i<5;++i)
         tree.insert(i);
     tree.insert(-1);
-    tree.update_depth();
-    tree.display_tree(4);
+    tree.display(4);
     tree.remove(-1);
-    tree.update_depth();
-    tree.display_tree(4);
+    tree.display(4);
     tree.remove(4);
     tree.remove(2);
-    tree.update_depth();
-    tree.display_tree(4);
+    tree.display(4);
+    tree.remove(3);
+    tree.display(4);
     return 0;
 }
