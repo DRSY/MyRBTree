@@ -33,7 +33,7 @@ class RBTree {
     int depth;
   public:
     RBTree(): root(NULL), depth(0) {}
-    RBTree(int value): root(new Node_t(value)), depth(0) { root->color = Color::black; }
+    explicit RBTree(int value): root(new Node_t(value)), depth(0) {root->color = Color::black;}
 
     bool _search(NodePtr_t root, int value) {
       if(!root)
